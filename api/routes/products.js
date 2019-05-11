@@ -11,8 +11,8 @@ const Product = require('../models/product');
 //import the multer (image uploading)
 const multer = require('multer');
 //.....................................................................
-//alter a new constant 'uplaod' to execute multer
-// const uplaod = multer({dest: 'uploads/'});  //'uploads' is a folder where multer will try to store incoming files
+//alter a new constant 'upload' to execute multer
+// const upload = multer({dest: 'uploads/'});  //'uploads' is a folder where multer will try to store incoming files
 //.....................................................................
 //A better to way to execute multer using 'multer.diskStorage()'
 const storage = multer.diskStorage({
@@ -24,9 +24,10 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + file.originalname);   //..............................................or this
     }
 });
-//additional filtering
+
+//additional filtering coming up before upload
 const fileFilter = (req, file, cb) => {
-    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg' ||file.mimetype === 'image/png'){
+    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg' || file.mimetype === 'image/png'){
         //to accept file and store
         cb(null, true)
     }else{
@@ -35,8 +36,8 @@ const fileFilter = (req, file, cb) => {
     }
 }
 
-// const uplaod = multer({storage: storage});    //this will work, but no filtering
-const uplaod = multer({storage: storage, limits: {   //this accepts filtering i.e 'limit to file size it accepts', additional filtering can be placed above this block like thatwe have above this block
+// const upload = multer({storage: storage});    //this will work, but no filtering
+const upload = multer({storage: storage, limits: {   //this accepts filtering i.e 'limit to file size it accepts', additional filtering can be placed above this block like thatwe have above this block
     fileSize: 1024 * 1024 * 5       //.....means 5mb file limit
 }, fileFilter: fileFilter});        //..............add the "fileFilter" property constant from above to the 
 
@@ -95,7 +96,7 @@ router.get('/', (req, res, next) => {
 });
 
 // router.post('/', (req, res, next) => {
-router.post('/', uplaod.single('productImage'), (req, res, next) => {     //adding the multer middleware "uplaod.single()"
+router.post('/', upload.single('productImage'), (req, res, next) => {     //adding the multer middleware "upload.single()"
     console.log(req.file);
 
     //.......................................
@@ -128,6 +129,7 @@ router.post('/', uplaod.single('productImage'), (req, res, next) => {     //addi
                 _id: result._id,
                 //adding image property to the model
                 productImage: req.file.path,
+                // productImage: result.productImage,
                 request: {
                     type: 'GET',
                     url: 'http://localhost:3000/products/' + result._id
